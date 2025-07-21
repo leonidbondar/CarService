@@ -1,9 +1,6 @@
 package com.carserviceapp.model;
 
-import com.carserviceapp.interfaces.CostCalculable;
-import com.carserviceapp.interfaces.Displayable;
-import com.carserviceapp.interfaces.Identifiable;
-import com.carserviceapp.interfaces.TimeEstimable;
+import com.carserviceapp.interfaces.*;
 import com.carserviceapp.util.UniqueIdGenerator;
 
 import java.time.LocalDate;
@@ -91,6 +88,13 @@ public class ServiceRequest implements Identifiable, Displayable, CostCalculable
         return new ArrayList<>(operations); // Return a copy to prevent external modification
     }
 
+    /**
+     * Returns a list of operations filtered by the given OperationFilter.
+     */
+    public List<AbstractServiceOperation> getFilteredOperations(OperationFilter filter) {
+        return operations.stream().filter(filter::filter).toList();
+    }
+
     public void addOperation(AbstractServiceOperation operation) {
         this.operations.add(operation);
         recalculateEstimates();
@@ -135,9 +139,9 @@ public class ServiceRequest implements Identifiable, Displayable, CostCalculable
         sb.append("  Estimated Total Time: ").append(String.format("%.1f", estimatedTotalTime)).append(" hours\n");
         if (!operations.isEmpty()) {
             sb.append("  Operations:\n");
-            for (AbstractServiceOperation op : operations) {
-                sb.append("    - ").append(op.getDisplayInfo()).append("\n");
-            }
+            StringFormatter<AbstractServiceOperation> formatter =
+                    op -> "    - " + op.getDisplayInfo() + "\n";
+            operations.stream().map(formatter::format).forEach(sb::append);
         } else {
             sb.append("  No operations added yet.\n");
         }

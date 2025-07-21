@@ -1,6 +1,7 @@
 package com.carserviceapp.service;
 
 import com.carserviceapp.interfaces.ReportGenerator;
+import com.carserviceapp.interfaces.StringFormatter;
 import com.carserviceapp.model.ServiceRequest;
 
 import java.time.LocalDate;
@@ -51,12 +52,12 @@ public class ServicePerformanceReport implements ReportGenerator {
 
         report.append("\n--- Completed Request Details ---\n");
         if (!completedServiceRequests.isEmpty()) {
-            for (ServiceRequest req : completedServiceRequests) {
-                report.append("  Request ID: ").append(req.getId())
-                        .append(", Vehicle: ").append(req.getVehicle().getDisplayInfo())
-                        .append(", Cost: $").append(String.format("%.2f", req.calculateCost()))
-                        .append(", Time: ").append(String.format("%.1f", req.estimateTime())).append(" hrs\n");
-            }
+            StringFormatter<ServiceRequest> formatter =
+                    req -> "  Request ID: " + req.getId()
+                            + ", Vehicle: " + req.getVehicle().getDisplayInfo()
+                            + ", Cost: $" + String.format("%.2f", req.calculateCost())
+                            + ", Time: " + String.format("%.1f", req.estimateTime()) + " hrs\n";
+            completedServiceRequests.stream().map(formatter::format).forEach(report::append);
         } else {
             report.append("No completed service requests to report.\n");
         }

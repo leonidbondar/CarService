@@ -205,4 +205,17 @@ public class ServiceManager {
     public AbstractServiceOperation createPartInstallation(String description, double estimatedDurationHours, Part part, int quantityUsed) {
         return partInstallationFactory.createServiceOperation(description, estimatedDurationHours, part, quantityUsed);
     }
+
+    public List<AbstractServiceOperation> getLaborOperationsForRequest(String requestId) {
+        ServiceRequest request = serviceRequests.get(requestId);
+        if (request == null) return List.of();
+        return request.getFilteredOperations(op -> op instanceof com.carserviceapp.model.LaborOperation);
+    }
+
+    public void applyDiscountToInvoice(String invoiceId, double discountPercent) {
+        Invoice invoice = invoices.get(invoiceId);
+        if (invoice != null) {
+            invoice.applyCostAdjuster(cost -> cost * (1 - discountPercent / 100.0));
+        }
+    }
 }

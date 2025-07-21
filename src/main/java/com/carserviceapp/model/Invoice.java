@@ -1,5 +1,6 @@
 package com.carserviceapp.model;
 
+import com.carserviceapp.interfaces.CostAdjuster;
 import com.carserviceapp.interfaces.Displayable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,9 +74,9 @@ public class Invoice extends AbstractTransaction implements Displayable {
         sb.append("Problem Description: ").append(serviceRequest.getProblemDescription()).append("\n");
         sb.append("---------------------\n");
         sb.append("Service Operations:\n");
-        for (AbstractServiceOperation op : serviceRequest.getOperations()) {
-            sb.append("  - ").append(op.getDisplayInfo()).append("\n");
-        }
+        com.carserviceapp.interfaces.StringFormatter<com.carserviceapp.model.AbstractServiceOperation> formatter =
+                op -> "  - " + op.getDisplayInfo() + "\n";
+        serviceRequest.getOperations().stream().map(formatter::format).forEach(sb::append);
         sb.append("---------------------\n");
         sb.append("TOTAL AMOUNT DUE: $").append(String.format("%.2f", getAmount())).append("\n");
         sb.append("---------------------\n");
@@ -90,6 +91,14 @@ public class Invoice extends AbstractTransaction implements Displayable {
         } else {
             logger.warn("Invoice {} is still unpaid. Cannot fully process yet.", getTransactionId());
         }
+    }
+
+    /**
+     * Adjusts the invoice amount using the provided CostAdjuster.
+     */
+    public void applyCostAdjuster(CostAdjuster adjuster) {
+        double adjusted = adjuster.adjust(getAmount());
+        setAmount(adjusted);
     }
 
     @Override
