@@ -1,5 +1,6 @@
 package com.carserviceapp.ui;
 
+import com.carserviceapp.ServiceManager;
 import com.carserviceapp.model.Customer;
 import com.carserviceapp.model.ServiceRequest;
 import com.carserviceapp.model.ServiceStatus;
@@ -33,7 +34,8 @@ public class ConsoleUI {
                 case 5 -> listRequests();
                 case 6 -> updateRequestStatus();
                 case 7 -> removeRequest();
-                case 8 -> exit = true;
+                case 8 -> demonstrateAnnotations();
+                case 9 -> exit = true;
                 default -> log.warn("Unknown option");
             }
         }
@@ -50,7 +52,8 @@ public class ConsoleUI {
                 5) List Requests for Car
                 6) Update Request Status
                 7) Remove Service Request
-                8) Exit
+                8) Demonstrate Annotations & Records
+                9) Exit
                 """);
     }
 
@@ -134,6 +137,18 @@ public class ConsoleUI {
             svc.removeServiceRequest(id);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
+        }
+    }
+
+    private void demonstrateAnnotations() {
+        log.info("=== Demonstrating Custom Annotations and Records ===");
+        try {
+            // Create a ServiceManager instance to access the demonstration
+            ServiceManager serviceManager = new ServiceManager();
+            serviceManager.demonstrateAnnotationFeatures();
+            log.info("Annotation demonstration completed successfully!");
+        } catch (Exception e) {
+            log.error("Error during annotation demonstration: {}", e.getMessage());
         }
     }
 }

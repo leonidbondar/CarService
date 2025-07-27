@@ -7,6 +7,7 @@ import com.carserviceapp.service.ComplexEngineRepairProcess;
 import com.carserviceapp.service.FinancialReport;
 import com.carserviceapp.service.ServicePerformanceReport;
 import com.carserviceapp.service.StandardCarRepairProcess;
+import com.carserviceapp.util.AnnotationProcessor;
 import com.carserviceapp.util.ReportWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -100,6 +101,9 @@ public class ServiceManager {
 
         scheduleAppointment(cust1, car1, req1, LocalDateTime.now().plusDays(2).withHour(10).withMinute(0), "Post-service checkup");
         fileInsuranceClaim(req1, "AutoInsure Inc.", "POL987654", inv1.getAmount() * 0.8);
+
+        // Demonstrate custom annotations and record features
+        demonstrateAnnotationFeatures();
     }
 
     public void addCustomer(Customer customer) {
@@ -113,6 +117,7 @@ public class ServiceManager {
         if (owner != null) {
             customerVehicles.computeIfAbsent(owner.getId(), k -> new ArrayList<>()).add(vehicle);
         }
+        assert owner != null;
         logger.info("Added vehicle: {} for customer: {}", vehicle.getDisplayInfo(), owner.getDisplayInfo());
     }
 
@@ -216,6 +221,145 @@ public class ServiceManager {
         Invoice invoice = invoices.get(invoiceId);
         if (invoice != null) {
             invoice.applyCostAdjuster(cost -> cost * (1 - discountPercent / 100.0));
+        }
+    }
+
+    /**
+     * Demonstrates the custom annotation features and record conversions.
+     * This method showcases business validation, audit tracking, and business rule execution.
+     */
+    public void demonstrateAnnotationFeatures() {
+        logger.info("=== Demonstrating Custom Annotations and Records ===");
+
+        // 1. Demonstrate record-based classes
+        demonstrateRecordClasses();
+
+        // 2. Demonstrate business validation
+        demonstrateBusinessValidation();
+
+        // 3. Demonstrate audit processing
+        demonstrateAuditProcessing();
+
+        // 4. Demonstrate business rule execution
+        demonstrateBusinessRules();
+
+        logger.info("=== Annotation Demonstration Completed ===");
+    }
+
+    /**
+     * Demonstrates the new record-based classes
+     */
+    private void demonstrateRecordClasses() {
+        logger.info("--- Record Classes Demonstration ---");
+
+        // Create record-based objects
+        Part part = new Part("Air Filter", 25.50, 15);
+        Technician tech = new Technician("John", "Doe", "john@example.com", "555-1234", "ASE Certified", 25.0);
+        LaborOperationRecord laborOp = new LaborOperationRecord("Replace air filter", 0.5, tech, 0.5);
+        PartInstallationRecord partInstall = new PartInstallationRecord("Install new air filter", 0.25, part, 1);
+
+        Customer customer = new Customer("Alice", "Brown", "alice@example.com", "555-2222");
+        Car car = new Car(VehicleMake.BMW, "X3", 2022, "GHI789", "VIN789123");
+        AppointmentRecord appointment = new AppointmentRecord(customer, car,
+                LocalDateTime.now().plusDays(1), "Air filter replacement");
+
+        // Create a service request for payment demonstration
+        ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Air filter replacement");
+        Invoice invoice = new Invoice(serviceRequest);
+        PaymentRecord payment = new PaymentRecord(invoice, 45.99, LocalDate.now(), PaymentRecord.PaymentMethod.CREDIT_CARD);
+
+        // Display record information
+        logger.info("Part Record: {}", part);
+        logger.info("Labor Operation Record: {}", laborOp);
+        logger.info("Part Installation Record: {}", partInstall);
+        logger.info("Appointment Record: {}", appointment);
+        logger.info("Payment Record: {}", payment);
+
+        // Show record accessors
+        logger.info("Part ID: {}, Name: {}, Price: ${}, Stock: {}",
+                part.partId(), part.name(), part.unitPrice(), part.stockQuantity());
+        logger.info("Labor Cost: ${}", laborOp.calculateCost());
+        logger.info("Installation Cost: ${}", partInstall.calculateCost());
+    }
+
+    /**
+     * Demonstrates business validation using custom annotations
+     */
+    private void demonstrateBusinessValidation() {
+        logger.info("--- Business Validation Demonstration ---");
+
+        // Test valid part
+        Part validPart = new Part("Brake Pads", 45.99, 10);
+        AnnotationProcessor.ValidationResult validResult = AnnotationProcessor.validateObject(validPart);
+        logger.info("Valid Part Validation: {}", validResult.isValid());
+
+        // Test invalid part (empty name, negative price)
+        Part invalidPart = new Part("", -10.0, -5);
+        AnnotationProcessor.ValidationResult invalidResult = AnnotationProcessor.validateObject(invalidPart);
+        logger.info("Invalid Part Validation: {}", invalidResult.isValid());
+        if (!invalidResult.isValid()) {
+            logger.error("Validation errors: {}", invalidResult.getErrors());
+        }
+
+        // Test ServiceRequest validation
+        Customer customer = new Customer("Bob", "Johnson", "bob@example.com", "555-9999");
+        Car car = new Car(VehicleMake.FORD, "Focus", 2021, "DEF456", "VIN456789");
+        ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Brake inspection");
+        AnnotationProcessor.ValidationResult srResult = AnnotationProcessor.validateObject(serviceRequest);
+        logger.info("Service Request Validation: {}", srResult.isValid());
+    }
+
+    /**
+     * Demonstrates audit processing using custom annotations
+     */
+    private void demonstrateAuditProcessing() {
+        logger.info("--- Audit Processing Demonstration ---");
+
+        // Create objects with Auditable annotations
+        Part part = new Part("Oil Filter", 12.99, 50);
+        Customer customer = new Customer("Jane", "Smith", "jane@example.com", "555-5678");
+        Car car = new Car(VehicleMake.HONDA, "Civic", 2019, "XYZ789", "VIN789012");
+        ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Oil change");
+        Invoice invoice = new Invoice(serviceRequest);
+        PaymentRecord payment = new PaymentRecord(invoice, 45.99, LocalDate.now(), PaymentRecord.PaymentMethod.CREDIT_CARD);
+
+        // Process audit events
+        AnnotationProcessor.processAudit(part, "CREATED");
+        AnnotationProcessor.processAudit(serviceRequest, "CREATED");
+        AnnotationProcessor.processAudit(payment, "PROCESSED");
+        AnnotationProcessor.processAudit(part, "STOCK_REDUCED");
+    }
+
+    /**
+     * Demonstrates business rule execution using custom annotations
+     */
+    private void demonstrateBusinessRules() {
+        logger.info("--- Business Rules Demonstration ---");
+
+        // Create a service request with operations
+        Customer customer = new Customer("Bob", "Johnson", "bob@example.com", "555-9999");
+        Car car = new Car(VehicleMake.FORD, "Focus", 2021, "DEF456", "VIN456789");
+        ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Brake inspection");
+
+        // Execute business rules
+        AnnotationProcessor.BusinessRuleResult costResult = AnnotationProcessor.executeBusinessRule(serviceRequest, "calculateCost");
+        logger.info("Cost calculation result: {} - {}", costResult.isSuccess(), costResult.getMessage());
+
+        AnnotationProcessor.BusinessRuleResult timeResult = AnnotationProcessor.executeBusinessRule(serviceRequest, "estimateTime");
+        logger.info("Time estimation result: {} - {}", timeResult.isSuccess(), timeResult.getMessage());
+
+        // Get all business rules for classes
+        var partRules = AnnotationProcessor.getBusinessRules(Part.class);
+        var srRules = AnnotationProcessor.getBusinessRules(ServiceRequest.class);
+
+        logger.info("Business rules in Part class:");
+        for (var rule : partRules) {
+            logger.info("  {}", rule);
+        }
+
+        logger.info("Business rules in ServiceRequest class:");
+        for (var rule : srRules) {
+            logger.info("  {}", rule);
         }
     }
 }

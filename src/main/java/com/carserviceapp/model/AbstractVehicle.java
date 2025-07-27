@@ -106,8 +106,7 @@ public abstract class AbstractVehicle implements Identifiable, Displayable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AbstractVehicle)) return false;
-        AbstractVehicle that = (AbstractVehicle) o;
+        if (!(o instanceof AbstractVehicle that)) return false;
         return Objects.equals(vehicleId, that.vehicleId);
     }
 

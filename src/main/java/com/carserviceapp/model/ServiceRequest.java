@@ -1,5 +1,8 @@
 package com.carserviceapp.model;
 
+import com.carserviceapp.annotations.Auditable;
+import com.carserviceapp.annotations.BusinessRule;
+import com.carserviceapp.annotations.BusinessValidation;
 import com.carserviceapp.interfaces.*;
 import com.carserviceapp.util.UniqueIdGenerator;
 
@@ -12,15 +15,23 @@ import java.util.Objects;
  * Represents a service request submitted by a customer for a vehicle.
  * This class uses a list of AbstractServiceOperation to represent the work to be done.
  */
+@Auditable(level = Auditable.AuditLevel.STANDARD, auditPrefix = "SERVICE_REQUEST")
 public class ServiceRequest implements Identifiable, Displayable, CostCalculable, TimeEstimable {
     private final String requestId;
+    @BusinessValidation(type = BusinessValidation.ValidationType.CUSTOMER_VALIDATION, required = true)
     private Customer customer;
+    @BusinessValidation(type = BusinessValidation.ValidationType.VEHICLE_VALIDATION, required = true)
     private AbstractVehicle vehicle;
+    @BusinessValidation(type = BusinessValidation.ValidationType.TIME_VALIDATION, required = true)
     private LocalDate requestDate;
+    @BusinessValidation(type = BusinessValidation.ValidationType.STANDARD, required = true, minLength = 10, maxLength = 1000)
     private String problemDescription;
+    @BusinessValidation(type = BusinessValidation.ValidationType.STANDARD, required = true)
     private ServiceStatus status;
-    private List<AbstractServiceOperation> operations;
+    private final List<AbstractServiceOperation> operations;
+    @BusinessValidation(type = BusinessValidation.ValidationType.COST_VALIDATION, required = true, minValue = 0.0, maxValue = 100000.0)
     private double estimatedTotalCost;
+    @BusinessValidation(type = BusinessValidation.ValidationType.TIME_VALIDATION, required = true, minValue = 0.0, maxValue = 1000.0)
     private double estimatedTotalTime;
 
     public ServiceRequest(Customer customer, AbstractVehicle vehicle, LocalDate requestDate, String problemDescription) {
@@ -95,6 +106,7 @@ public class ServiceRequest implements Identifiable, Displayable, CostCalculable
         return operations.stream().filter(filter::filter).toList();
     }
 
+    @BusinessRule(type = BusinessRule.RuleType.SERVICE_VALIDATION, priority = 2)
     public void addOperation(AbstractServiceOperation operation) {
         this.operations.add(operation);
         recalculateEstimates();
@@ -117,11 +129,13 @@ public class ServiceRequest implements Identifiable, Displayable, CostCalculable
     }
 
     @Override
+    @BusinessRule(type = BusinessRule.RuleType.COST_CALCULATION, priority = 1)
     public double calculateCost() {
         return estimatedTotalCost;
     }
 
     @Override
+    @BusinessRule(type = BusinessRule.RuleType.TIME_ESTIMATION, priority = 2)
     public double estimateTime() {
         return estimatedTotalTime;
     }

@@ -34,12 +34,12 @@ public class PartInstallation extends AbstractServiceOperation {
     @Override
     public double calculateCost() {
         // Cost of part installation is quantity used multiplied by part's unit price
-        return quantityUsed * partUsed.getUnitPrice();
+        return quantityUsed * partUsed.unitPrice();
     }
 
     @Override
     public String getDisplayInfo() {
-        return super.getDisplayInfo() + ", Type: Part Installation, Part: " + partUsed.getName() + " (x" + quantityUsed + "), Cost: $" + String.format("%.2f", calculateCost());
+        return super.getDisplayInfo() + ", Type: Part Installation, Part: " + partUsed.name() + " (x" + quantityUsed + "), Cost: $" + String.format("%.2f", calculateCost());
     }
 
     @Override
