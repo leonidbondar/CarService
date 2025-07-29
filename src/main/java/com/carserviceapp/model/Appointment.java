@@ -19,7 +19,7 @@ public class Appointment implements Identifiable, Displayable {
     private String purpose; // e.g., "Diagnostic", "Repair Drop-off", "Pickup"
 
     public Appointment(Customer customer, AbstractVehicle vehicle, LocalDateTime scheduledTime, String purpose) {
-        this.appointmentId = UniqueIdGenerator.generateId("APPT");
+        this.appointmentId = UniqueIdGenerator.getInstance().generateId("APPT");
         this.customer = customer;
         this.vehicle = vehicle;
         this.scheduledTime = scheduledTime;

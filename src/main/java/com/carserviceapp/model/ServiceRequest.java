@@ -35,7 +35,7 @@ public class ServiceRequest implements Identifiable, Displayable, CostCalculable
     private double estimatedTotalTime;
 
     public ServiceRequest(Customer customer, AbstractVehicle vehicle, LocalDate requestDate, String problemDescription) {
-        this.requestId = UniqueIdGenerator.generateId("REQ");
+        this.requestId = UniqueIdGenerator.getInstance().generateId("REQ");
         this.customer = customer;
         this.vehicle = vehicle;
         this.requestDate = requestDate;

@@ -25,7 +25,7 @@ public class AnnotationDemoService {
 
         // Create a valid part
         Part validPart = new Part("Brake Pads", 45.99, 10);
-        AnnotationProcessor.ValidationResult validResult = AnnotationProcessor.validateObject(validPart);
+        AnnotationProcessor.ValidationResult validResult = AnnotationProcessor.getInstance().validateObject(validPart);
         logger.info("Valid Part Validation: " + validResult.isValid());
         if (!validResult.isValid()) {
             logger.error("Validation errors: " + validResult.getErrors());
@@ -33,7 +33,7 @@ public class AnnotationDemoService {
 
         // Create an invalid part (negative price)
         Part invalidPart = new Part("", -10.0, -5);
-        AnnotationProcessor.ValidationResult invalidResult = AnnotationProcessor.validateObject(invalidPart);
+        AnnotationProcessor.ValidationResult invalidResult = AnnotationProcessor.getInstance().validateObject(invalidPart);
         logger.info("Invalid Part Validation: " + invalidResult.isValid());
         if (!invalidResult.isValid()) {
             logger.error("Validation errors: " + invalidResult.getErrors());
@@ -43,7 +43,7 @@ public class AnnotationDemoService {
         Customer customer = new Customer("John", "Doe", "john@example.com", "555-1234");
         Car car = new Car(VehicleMake.TOYOTA, "Camry", 2020, "ABC123", "VIN123456");
         ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Engine noise");
-        AnnotationProcessor.ValidationResult srResult = AnnotationProcessor.validateObject(serviceRequest);
+        AnnotationProcessor.ValidationResult srResult = AnnotationProcessor.getInstance().validateObject(serviceRequest);
         logger.info("Service Request Validation: " + srResult.isValid());
     }
 
@@ -69,9 +69,9 @@ public class AnnotationDemoService {
         );
 
         // Process audit events
-        AnnotationProcessor.processAudit(part, "CREATED");
-        AnnotationProcessor.processAudit(payment, "PROCESSED");
-        AnnotationProcessor.processAudit(part, "STOCK_REDUCED");
+        AnnotationProcessor.getInstance().processAudit(part, "CREATED");
+        AnnotationProcessor.getInstance().processAudit(payment, "PROCESSED");
+        AnnotationProcessor.getInstance().processAudit(part, "STOCK_REDUCED");
     }
 
     /**
@@ -86,14 +86,14 @@ public class AnnotationDemoService {
         ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Brake inspection");
 
         // Execute business rules
-        AnnotationProcessor.BusinessRuleResult costResult = AnnotationProcessor.executeBusinessRule(serviceRequest, "calculateCost");
+        AnnotationProcessor.BusinessRuleResult costResult = AnnotationProcessor.getInstance().executeBusinessRule(serviceRequest, "calculateCost");
         logger.info("Cost calculation result: " + costResult.isSuccess() + " - " + costResult.getMessage());
 
-        AnnotationProcessor.BusinessRuleResult timeResult = AnnotationProcessor.executeBusinessRule(serviceRequest, "estimateTime");
+        AnnotationProcessor.BusinessRuleResult timeResult = AnnotationProcessor.getInstance().executeBusinessRule(serviceRequest, "estimateTime");
         logger.info("Time estimation result: " + timeResult.isSuccess() + " - " + timeResult.getMessage());
 
         // Get all business rules for a class
-        List<AnnotationProcessor.BusinessRuleInfo> rules = AnnotationProcessor.getBusinessRules(ServiceRequest.class);
+        List<AnnotationProcessor.BusinessRuleInfo> rules = AnnotationProcessor.getInstance().getBusinessRules(ServiceRequest.class);
         logger.info("Business rules in ServiceRequest:");
         for (AnnotationProcessor.BusinessRuleInfo rule : rules) {
             logger.info("  " + rule);
@@ -128,22 +128,22 @@ public class AnnotationDemoService {
         );
 
         // Validate and audit record objects
-        AnnotationProcessor.ValidationResult partValidation = AnnotationProcessor.validateObject(part);
-        AnnotationProcessor.ValidationResult laborValidation = AnnotationProcessor.validateObject(laborOp);
-        AnnotationProcessor.ValidationResult appointmentValidation = AnnotationProcessor.validateObject(appointment);
+        AnnotationProcessor.ValidationResult partValidation = AnnotationProcessor.getInstance().validateObject(part);
+        AnnotationProcessor.ValidationResult laborValidation = AnnotationProcessor.getInstance().validateObject(laborOp);
+        AnnotationProcessor.ValidationResult appointmentValidation = AnnotationProcessor.getInstance().validateObject(appointment);
 
         logger.info("Part validation: " + partValidation.isValid());
         logger.info("Labor operation validation: " + laborValidation.isValid());
         logger.info("Appointment validation: " + appointmentValidation.isValid());
 
         // Process audit events for records
-        AnnotationProcessor.processAudit(part, "CREATED");
-        AnnotationProcessor.processAudit(laborOp, "COMPLETED");
-        AnnotationProcessor.processAudit(appointment, "SCHEDULED");
+        AnnotationProcessor.getInstance().processAudit(part, "CREATED");
+        AnnotationProcessor.getInstance().processAudit(laborOp, "COMPLETED");
+        AnnotationProcessor.getInstance().processAudit(appointment, "SCHEDULED");
 
         // Execute business rules on records
-        AnnotationProcessor.BusinessRuleResult laborCostResult = AnnotationProcessor.executeBusinessRule(laborOp, "calculateCost");
-        AnnotationProcessor.BusinessRuleResult partCostResult = AnnotationProcessor.executeBusinessRule(partInstall, "calculateCost");
+        AnnotationProcessor.BusinessRuleResult laborCostResult = AnnotationProcessor.getInstance().executeBusinessRule(laborOp, "calculateCost");
+        AnnotationProcessor.BusinessRuleResult partCostResult = AnnotationProcessor.getInstance().executeBusinessRule(partInstall, "calculateCost");
 
         logger.info("Labor cost calculation: " + laborCostResult.isSuccess() + " - Result: " + laborCostResult.getResult());
         logger.info("Part installation cost calculation: " + partCostResult.isSuccess() + " - Result: " + partCostResult.getResult());

@@ -15,7 +15,7 @@ public abstract class AbstractTransaction implements Identifiable {
     protected double amount;
 
     public AbstractTransaction(String idPrefix, LocalDate transactionDate, double amount) {
-        this.transactionId = UniqueIdGenerator.generateId(idPrefix);
+        this.transactionId = UniqueIdGenerator.getInstance().generateId(idPrefix);
         this.transactionDate = transactionDate;
         this.amount = amount;
     }

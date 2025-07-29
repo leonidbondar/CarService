@@ -33,7 +33,7 @@ public record LaborOperationRecord(
      * Constructor with auto-generated ID
      */
     public LaborOperationRecord(String description, double estimatedDurationHours, Technician assignedTechnician, double hoursWorked) {
-        this(UniqueIdGenerator.generateId("OP"), description, estimatedDurationHours, assignedTechnician, hoursWorked);
+        this(UniqueIdGenerator.getInstance().generateId("OP"), description, estimatedDurationHours, assignedTechnician, hoursWorked);
     }
 
     @Override

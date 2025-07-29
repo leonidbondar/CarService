@@ -33,7 +33,7 @@ public record PartInstallationRecord(
      * Constructor with auto-generated ID
      */
     public PartInstallationRecord(String description, double estimatedDurationHours, Part partUsed, int quantityUsed) {
-        this(UniqueIdGenerator.generateId("OP"), description, estimatedDurationHours, partUsed, quantityUsed);
+        this(UniqueIdGenerator.getInstance().generateId("OP"), description, estimatedDurationHours, partUsed, quantityUsed);
     }
 
     @Override

@@ -8,7 +8,9 @@ import com.carserviceapp.service.FinancialReport;
 import com.carserviceapp.service.ServicePerformanceReport;
 import com.carserviceapp.service.StandardCarRepairProcess;
 import com.carserviceapp.util.AnnotationProcessor;
+import com.carserviceapp.util.InputValidator;
 import com.carserviceapp.util.ReportWrapper;
+import com.carserviceapp.util.UniqueIdGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -290,12 +292,12 @@ public class ServiceManager {
 
         // Test valid part
         Part validPart = new Part("Brake Pads", 45.99, 10);
-        AnnotationProcessor.ValidationResult validResult = AnnotationProcessor.validateObject(validPart);
+        AnnotationProcessor.ValidationResult validResult = AnnotationProcessor.getInstance().validateObject(validPart);
         logger.info("Valid Part Validation: {}", validResult.isValid());
 
         // Test invalid part (empty name, negative price)
         Part invalidPart = new Part("", -10.0, -5);
-        AnnotationProcessor.ValidationResult invalidResult = AnnotationProcessor.validateObject(invalidPart);
+        AnnotationProcessor.ValidationResult invalidResult = AnnotationProcessor.getInstance().validateObject(invalidPart);
         logger.info("Invalid Part Validation: {}", invalidResult.isValid());
         if (!invalidResult.isValid()) {
             logger.error("Validation errors: {}", invalidResult.getErrors());
@@ -305,7 +307,7 @@ public class ServiceManager {
         Customer customer = new Customer("Bob", "Johnson", "bob@example.com", "555-9999");
         Car car = new Car(VehicleMake.FORD, "Focus", 2021, "DEF456", "VIN456789");
         ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Brake inspection");
-        AnnotationProcessor.ValidationResult srResult = AnnotationProcessor.validateObject(serviceRequest);
+        AnnotationProcessor.ValidationResult srResult = AnnotationProcessor.getInstance().validateObject(serviceRequest);
         logger.info("Service Request Validation: {}", srResult.isValid());
     }
 
@@ -324,10 +326,10 @@ public class ServiceManager {
         PaymentRecord payment = new PaymentRecord(invoice, 45.99, LocalDate.now(), PaymentRecord.PaymentMethod.CREDIT_CARD);
 
         // Process audit events
-        AnnotationProcessor.processAudit(part, "CREATED");
-        AnnotationProcessor.processAudit(serviceRequest, "CREATED");
-        AnnotationProcessor.processAudit(payment, "PROCESSED");
-        AnnotationProcessor.processAudit(part, "STOCK_REDUCED");
+        AnnotationProcessor.getInstance().processAudit(part, "CREATED");
+        AnnotationProcessor.getInstance().processAudit(serviceRequest, "CREATED");
+        AnnotationProcessor.getInstance().processAudit(payment, "PROCESSED");
+        AnnotationProcessor.getInstance().processAudit(part, "STOCK_REDUCED");
     }
 
     /**
@@ -342,15 +344,15 @@ public class ServiceManager {
         ServiceRequest serviceRequest = new ServiceRequest(customer, car, LocalDate.now(), "Brake inspection");
 
         // Execute business rules
-        AnnotationProcessor.BusinessRuleResult costResult = AnnotationProcessor.executeBusinessRule(serviceRequest, "calculateCost");
+        AnnotationProcessor.BusinessRuleResult costResult = AnnotationProcessor.getInstance().executeBusinessRule(serviceRequest, "calculateCost");
         logger.info("Cost calculation result: {} - {}", costResult.isSuccess(), costResult.getMessage());
 
-        AnnotationProcessor.BusinessRuleResult timeResult = AnnotationProcessor.executeBusinessRule(serviceRequest, "estimateTime");
+        AnnotationProcessor.BusinessRuleResult timeResult = AnnotationProcessor.getInstance().executeBusinessRule(serviceRequest, "estimateTime");
         logger.info("Time estimation result: {} - {}", timeResult.isSuccess(), timeResult.getMessage());
 
         // Get all business rules for classes
-        var partRules = AnnotationProcessor.getBusinessRules(Part.class);
-        var srRules = AnnotationProcessor.getBusinessRules(ServiceRequest.class);
+        var partRules = AnnotationProcessor.getInstance().getBusinessRules(Part.class);
+        var srRules = AnnotationProcessor.getInstance().getBusinessRules(ServiceRequest.class);
 
         logger.info("Business rules in Part class:");
         for (var rule : partRules) {
@@ -361,5 +363,31 @@ public class ServiceManager {
         for (var rule : srRules) {
             logger.info("  {}", rule);
         }
+    }
+
+    /**
+     * Demonstrates singleton usage in a multithreaded context.
+     */
+    public void demoSingletonsWithThreads() {
+        Runnable task = () -> {
+            String threadName = Thread.currentThread().getName();
+            String id = UniqueIdGenerator.getInstance().generateId("THR");
+            boolean valid = InputValidator.getInstance().getStringInput("Thread " + threadName + " enter any string (demo): ").isEmpty();
+            AnnotationProcessor.getInstance().processAudit(id, "GENERATED");
+            logger.info("[{}] Generated ID: {}, Input valid: {}", threadName, id, valid);
+        };
+        Thread[] threads = new Thread[3];
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(task, "DemoThread-" + (i + 1));
+            threads[i].start();
+        }
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                logger.error("Thread interrupted", e);
+            }
+        }
+        logger.info("All singleton demo threads completed.");
     }
 }

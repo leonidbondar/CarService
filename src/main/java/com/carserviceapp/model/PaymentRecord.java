@@ -36,7 +36,7 @@ public record PaymentRecord(
      * Constructor with auto-generated ID
      */
     public PaymentRecord(Invoice invoice, double amount, LocalDate paymentDate, PaymentMethod method) {
-        this(UniqueIdGenerator.generateId("PAY"), amount, paymentDate, invoice, method);
+        this(UniqueIdGenerator.getInstance().generateId("PAY"), amount, paymentDate, invoice, method);
     }
 
     @Override

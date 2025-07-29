@@ -18,12 +18,17 @@ import java.util.List;
  * audit requirements, and handle business validation annotations.
  */
 public class AnnotationProcessor {
+    private static final AnnotationProcessor INSTANCE = new AnnotationProcessor();
     private static final Logger logger = LogManager.getLogger(AnnotationProcessor.class);
+    private AnnotationProcessor() {}
+    public static AnnotationProcessor getInstance() {
+        return INSTANCE;
+    }
 
     /**
      * Validates an object based on its BusinessValidation annotations
      */
-    public static ValidationResult validateObject(Object obj) {
+    public ValidationResult validateObject(Object obj) {
         ValidationResult result = new ValidationResult();
 
         if (obj == null) {
@@ -47,7 +52,7 @@ public class AnnotationProcessor {
     /**
      * Validates a specific field based on its BusinessValidation annotation
      */
-    private static void validateField(Object obj, Field field, BusinessValidation validation, ValidationResult result) {
+    private void validateField(Object obj, Field field, BusinessValidation validation, ValidationResult result) {
         try {
             field.setAccessible(true);
             Object value = field.get(obj);
@@ -76,7 +81,7 @@ public class AnnotationProcessor {
     /**
      * Validates string fields based on BusinessValidation annotation
      */
-    private static void validateStringField(String value, String fieldName, BusinessValidation validation, ValidationResult result) {
+    private void validateStringField(String value, String fieldName, BusinessValidation validation, ValidationResult result) {
         if (value.length() < validation.minLength()) {
             result.addError(fieldName + " must be at least " + validation.minLength() + " characters long");
         }
@@ -89,7 +94,7 @@ public class AnnotationProcessor {
     /**
      * Validates numeric fields based on BusinessValidation annotation
      */
-    private static void validateNumericField(Number value, String fieldName, BusinessValidation validation, ValidationResult result) {
+    private void validateNumericField(Number value, String fieldName, BusinessValidation validation, ValidationResult result) {
         double doubleValue = value.doubleValue();
 
         if (doubleValue < validation.minValue()) {
@@ -104,7 +109,7 @@ public class AnnotationProcessor {
     /**
      * Processes audit requirements for an object
      */
-    public static void processAudit(Object obj, String action) {
+    public void processAudit(Object obj, String action) {
         if (obj == null) return;
 
         Auditable auditable = obj.getClass().getAnnotation(Auditable.class);
@@ -117,7 +122,7 @@ public class AnnotationProcessor {
     /**
      * Builds an audit message based on the Auditable annotation
      */
-    private static String buildAuditMessage(Object obj, String action, Auditable auditable) {
+    private String buildAuditMessage(Object obj, String action, Auditable auditable) {
         StringBuilder message = new StringBuilder();
 
         if (!auditable.auditPrefix().isEmpty()) {
@@ -136,7 +141,7 @@ public class AnnotationProcessor {
     /**
      * Gets the ID of an object for audit purposes
      */
-    private static String getObjectId(Object obj) {
+    private String getObjectId(Object obj) {
         try {
             Method getIdMethod = obj.getClass().getMethod("getId");
             Object id = getIdMethod.invoke(obj);
@@ -149,7 +154,7 @@ public class AnnotationProcessor {
     /**
      * Executes business rules for a method
      */
-    public static BusinessRuleResult executeBusinessRule(Object obj, String methodName, Object... args) {
+    public BusinessRuleResult executeBusinessRule(Object obj, String methodName, Object... args) {
         try {
             Method method = obj.getClass().getMethod(methodName);
             BusinessRule businessRule = method.getAnnotation(BusinessRule.class);
@@ -177,7 +182,7 @@ public class AnnotationProcessor {
     /**
      * Gets all business rules for a class
      */
-    public static List<BusinessRuleInfo> getBusinessRules(Class<?> clazz) {
+    public List<BusinessRuleInfo> getBusinessRules(Class<?> clazz) {
         List<BusinessRuleInfo> rules = new ArrayList<>();
 
         Method[] methods = clazz.getMethods();

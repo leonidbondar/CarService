@@ -34,14 +34,14 @@ public record AppointmentRecord(
      * Constructor with auto-generated ID
      */
     public AppointmentRecord(Customer customer, AbstractVehicle vehicle, LocalDateTime scheduledTime, String purpose) {
-        this(UniqueIdGenerator.generateId("APPT"), customer, vehicle, null, scheduledTime, purpose);
+        this(UniqueIdGenerator.getInstance().generateId("APPT"), customer, vehicle, null, scheduledTime, purpose);
     }
 
     /**
      * Constructor with service request
      */
     public AppointmentRecord(Customer customer, AbstractVehicle vehicle, ServiceRequest serviceRequest, LocalDateTime scheduledTime, String purpose) {
-        this(UniqueIdGenerator.generateId("APPT"), customer, vehicle, serviceRequest, scheduledTime, purpose);
+        this(UniqueIdGenerator.getInstance().generateId("APPT"), customer, vehicle, serviceRequest, scheduledTime, purpose);
     }
 
     @Override

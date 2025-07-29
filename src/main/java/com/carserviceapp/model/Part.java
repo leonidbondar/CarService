@@ -29,7 +29,7 @@ public record Part(
      * Constructor with auto-generated ID
      */
     public Part(String name, double unitPrice, int stockQuantity) {
-        this(UniqueIdGenerator.generateId("PART"), name, unitPrice, stockQuantity);
+        this(UniqueIdGenerator.getInstance().generateId("PART"), name, unitPrice, stockQuantity);
     }
 
     @Override

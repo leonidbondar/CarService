@@ -17,7 +17,7 @@ public abstract class AbstractPerson implements Identifiable, Displayable {
     protected String phone;
 
     public AbstractPerson(String idPrefix, String firstName, String lastName, String email, String phone) {
-        this.id = UniqueIdGenerator.generateId(idPrefix);
+        this.id = UniqueIdGenerator.getInstance().generateId(idPrefix);
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

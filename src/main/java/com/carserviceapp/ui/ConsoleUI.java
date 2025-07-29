@@ -26,7 +26,8 @@ public class ConsoleUI {
         boolean exit = false;
         while (!exit) {
             showMenu();
-            switch (InputValidator.getPositiveIntegerInput("Option: ")) {
+            int option = InputValidator.getInstance().getPositiveIntegerInput("Option: ");
+            switch (option) {
                 case 1 -> addCar();
                 case 2 -> removeCar();
                 case 3 -> createRequest();
@@ -35,7 +36,8 @@ public class ConsoleUI {
                 case 6 -> updateRequestStatus();
                 case 7 -> removeRequest();
                 case 8 -> demonstrateAnnotations();
-                case 9 -> exit = true;
+                case 9 -> singletonMultithreadedDemo();
+                case 10 -> exit = true;
                 default -> log.warn("Unknown option");
             }
         }
@@ -53,17 +55,18 @@ public class ConsoleUI {
                 6) Update Request Status
                 7) Remove Service Request
                 8) Demonstrate Annotations & Records
-                9) Exit
+                9) Singleton/Multithreaded Demo
+                10) Exit
                 """);
     }
 
     private void addCar() {
         try {
-            VehicleMake make = VehicleMake.valueOf(InputValidator.getStringInput("Make: "));
-            String model = InputValidator.getStringInput("Model: ");
-            int year = InputValidator.getPositiveIntegerInput("Year: ");
-            String plate = InputValidator.getStringInput("License Plate: ");
-            String vin = InputValidator.getStringInput("VIN: ");
+            VehicleMake make = VehicleMake.valueOf(InputValidator.getInstance().getStringInput("Make: "));
+            String model = InputValidator.getInstance().getStringInput("Model: ");
+            int year = InputValidator.getInstance().getPositiveIntegerInput("Year: ");
+            String plate = InputValidator.getInstance().getStringInput("License Plate: ");
+            String vin = InputValidator.getInstance().getStringInput("VIN: ");
             svc.addCar(make, model, year, plate, vin);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -72,7 +75,7 @@ public class ConsoleUI {
 
     private void removeCar() {
         try {
-            String plate = InputValidator.getStringInput("License Plate: ");
+            String plate = InputValidator.getInstance().getStringInput("License Plate: ");
             svc.removeCar(plate);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -81,17 +84,17 @@ public class ConsoleUI {
 
     private void createRequest() {
         try {
-            String fn = InputValidator.getStringInput("Customer first name: ");
-            String ln = InputValidator.getStringInput("Customer last name: ");
-            String email = InputValidator.getStringInput("Customer email: ");
-            String phone = InputValidator.getStringInput("Customer phone: ");
+            String fn = InputValidator.getInstance().getStringInput("Customer first name: ");
+            String ln = InputValidator.getInstance().getStringInput("Customer last name: ");
+            String email = InputValidator.getInstance().getStringInput("Customer email: ");
+            String phone = InputValidator.getInstance().getStringInput("Customer phone: ");
             Customer cust = new Customer(fn, ln, email, phone);
 
-            String plate = InputValidator.getStringInput("License Plate: ");
+            String plate = InputValidator.getInstance().getStringInput("License Plate: ");
             LocalDate date = LocalDate.parse(
-                    InputValidator.getStringInput("Request Date (YYYY-MM-DD): ")
+                    InputValidator.getInstance().getStringInput("Request Date (YYYY-MM-DD): ")
             );
-            String problem = InputValidator.getStringInput("Problem description: ");
+            String problem = InputValidator.getInstance().getStringInput("Problem description: ");
             svc.createServiceRequest(cust, plate, date, problem);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -109,7 +112,7 @@ public class ConsoleUI {
 
     private void listRequests() {
         try {
-            String plate = InputValidator.getStringInput("License Plate: ");
+            String plate = InputValidator.getInstance().getStringInput("License Plate: ");
             List<ServiceRequest> reqs = svc.listServiceRequests(plate);
             if (reqs.isEmpty()) {
                 log.info("No requests for {}", plate);
@@ -123,8 +126,8 @@ public class ConsoleUI {
 
     private void updateRequestStatus() {
         try {
-            String id = InputValidator.getStringInput("Request ID: ");
-            String st = InputValidator.getStringInput("New status (PENDING|IN_PROGRESS|COMPLETED|CANCELLED): ");
+            String id = InputValidator.getInstance().getStringInput("Request ID: ");
+            String st = InputValidator.getInstance().getStringInput("New status (PENDING|IN_PROGRESS|COMPLETED|CANCELLED): ");
             svc.updateServiceRequestStatus(id, ServiceStatus.valueOf(st));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -133,7 +136,7 @@ public class ConsoleUI {
 
     private void removeRequest() {
         try {
-            String id = InputValidator.getStringInput("Request ID: ");
+            String id = InputValidator.getInstance().getStringInput("Request ID: ");
             svc.removeServiceRequest(id);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -150,5 +153,12 @@ public class ConsoleUI {
         } catch (Exception e) {
             log.error("Error during annotation demonstration: {}", e.getMessage());
         }
+    }
+
+    private void singletonMultithreadedDemo() {
+        log.info("=== Singleton/Multithreaded Demo ===");
+        ServiceManager serviceManager = new ServiceManager();
+        serviceManager.demoSingletonsWithThreads();
+        log.info("Singleton/Multithreaded demo completed!");
     }
 }

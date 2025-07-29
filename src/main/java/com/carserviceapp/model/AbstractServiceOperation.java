@@ -17,7 +17,7 @@ public abstract class AbstractServiceOperation implements Identifiable, Displaya
     protected double estimatedDurationHours; // Time estimate
 
     public AbstractServiceOperation(String description, double estimatedDurationHours) {
-        this.operationId = UniqueIdGenerator.generateId("OP");
+        this.operationId = UniqueIdGenerator.getInstance().generateId("OP");
         this.description = description;
         this.estimatedDurationHours = estimatedDurationHours;
     }

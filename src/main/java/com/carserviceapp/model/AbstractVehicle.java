@@ -73,7 +73,7 @@ public abstract class AbstractVehicle implements Identifiable, Displayable {
                            int year,
                            String licensePlate,
                            String vin) {
-        this.vehicleId = UniqueIdGenerator.generateId("VEH");
+        this.vehicleId = UniqueIdGenerator.getInstance().generateId("VEH");
         this.make = make;
         this.model = model;
         this.year = year;

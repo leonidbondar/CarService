@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  * Utility class for robust user input validation.
  */
 public class InputValidator {
+    private static final InputValidator INSTANCE = new InputValidator();
     private static final Logger logger = LogManager.getLogger(InputValidator.class);
     private static final Scanner scanner = new Scanner(System.in);
 
@@ -17,13 +18,19 @@ public class InputValidator {
     private static final Pattern DECIMAL_PATTERN = Pattern.compile("^-?\\d+(\\.\\d+)?$");
     private static final Pattern NON_EMPTY_STRING_PATTERN = Pattern.compile("^\\s*\\S+.*$");
 
+    private InputValidator() {}
+
+    public static InputValidator getInstance() {
+        return INSTANCE;
+    }
+
     /**
      * Gets a non-empty string input from the user.
      *
      * @param prompt The message to display to the user (logged, not printed).
      * @return The validated string input.
      */
-    public static String getStringInput(String prompt) {
+    public String getStringInput(String prompt) {
         String input;
         while (true) {
             logger.info(prompt);
@@ -43,7 +50,7 @@ public class InputValidator {
      * @param prompt The message to display to the user (logged, not printed).
      * @return The validated positive integer input.
      */
-    public static int getPositiveIntegerInput(String prompt) {
+    public int getPositiveIntegerInput(String prompt) {
         String input;
         while (true) {
             logger.info(prompt);
@@ -72,7 +79,7 @@ public class InputValidator {
      * @param prompt The message to display to the user (logged, not printed).
      * @return The validated decimal input.
      */
-    public static double getDecimalInput(String prompt) {
+    public double getDecimalInput(String prompt) {
         String input;
         while (true) {
             logger.info(prompt);
@@ -95,7 +102,7 @@ public class InputValidator {
      * @param prompt The message to display to the user (logged, not printed).
      * @return true if 'yes' or 'y', false if 'no' or 'n'.
      */
-    public static boolean getYesNoInput(String prompt) {
+    public boolean getYesNoInput(String prompt) {
         String input;
         while (true) {
             logger.info("{} (yes/no):", prompt);

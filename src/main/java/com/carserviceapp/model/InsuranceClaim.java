@@ -24,7 +24,7 @@ public class InsuranceClaim implements Identifiable, Displayable {
     }
 
     public InsuranceClaim(ServiceRequest serviceRequest, String insuranceCompany, String policyNumber, double claimAmount) {
-        this.claimId = UniqueIdGenerator.generateId("CLAIM");
+        this.claimId = UniqueIdGenerator.getInstance().generateId("CLAIM");
         this.serviceRequest = serviceRequest;
         this.insuranceCompany = insuranceCompany;
         this.policyNumber = policyNumber;
